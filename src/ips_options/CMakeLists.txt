@@ -42,6 +42,7 @@ SET( PLUGIN_LIST
     ips_tos.cc
     ips_ttl.cc
     ips_window.cc
+    ips_var_test.cc
     ips_vba_data.cc
     ips_vba_data.h
 )
@@ -135,6 +136,7 @@ else (STATIC_IPS_OPTIONS)
     add_dynamic_module(ips_target ips_options ips_target.cc)
     add_dynamic_module(ips_tos ips_options ips_tos.cc)
     add_dynamic_module(ips_ttl ips_options ips_ttl.cc)
+    add_dynamic_module(ips_var_test ips_options extract.cc ips_var_test.cc)
     add_dynamic_module(ips_window ips_options ips_window.cc)
 if ( HAVE_HYPERSCAN )
     add_dynamic_module(ips_regex ips_options ips_regex.cc)

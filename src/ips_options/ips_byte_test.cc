@@ -130,7 +130,7 @@ enum ByteTestOper
 
 struct ByteTestData : public ByteData
 {
-    uint32_t cmp_value;
+    uint32_t cmp_var;
     ByteTestOper opcode;
     bool not_flag;
     int8_t cmp_value_var;
@@ -212,7 +212,7 @@ private:
 uint32_t ByteTestOption::hash() const
 {
     uint32_t a = config.bytes_to_extract;
-    uint32_t b = config.cmp_value;
+    uint32_t b = config.cmp_var;
     uint32_t c = config.opcode;
 
     mix(a,b,c);
@@ -249,7 +249,7 @@ bool ByteTestOption::operator==(const IpsOption& ips) const
     const ByteTestData* right = &rhs.config;
 
     if (( left->bytes_to_extract == right->bytes_to_extract) and
-        ( left->cmp_value == right->cmp_value) and
+        ( left->cmp_var == right->cmp_var) and
         ( left->opcode == right->opcode) and
         ( left->offset == right->offset) and
         ( left->not_flag == right->not_flag) and
@@ -273,17 +273,17 @@ IpsOption::EvalStatus ByteTestOption::eval(Cursor& c, Packet* p)
     RuleProfile profile(byteTestPerfStats);
 
     ByteTestData* btd = (ByteTestData*)&config;
-    uint32_t cmp_value = 0;
+    uint32_t cmp_var = 0;
 
     // Get values from byte_extract variables, if present.
     if (btd->cmp_value_var >= 0 and btd->cmp_value_var < NUM_IPS_OPTIONS_VARS)
     {
         uint32_t val;
         GetVarValueByIndex(&val, btd->cmp_value_var);
-        cmp_value = val;
+        cmp_var = val;
     }
     else
-        cmp_value = btd->cmp_value;
+        cmp_var = btd->cmp_var;
 
     int offset = 0;
 
@@ -305,7 +305,7 @@ IpsOption::EvalStatus ByteTestOption::eval(Cursor& c, Packet* p)
     if (payload_bytes_grabbed == NO_MATCH)
         return NO_MATCH;
 
-    if (byte_test_check(btd->opcode, value, cmp_value, btd->not_flag))
+    if (byte_test_check(btd->opcode, value, cmp_var, btd->not_flag))
         return MATCH;
 
     return NO_MATCH;
@@ -506,7 +506,7 @@ bool ByteTestModule::set(const char*, Value& v, SnortConfig*)
     {
         unsigned long n;
         if (v.strtoul(n))
-            data.cmp_value = n;
+            data.cmp_var = n;
         else
             cmp_var = v.get_string();
     }
@@ -624,7 +624,7 @@ const BaseApi* ips_byte_test[] =
 static void SetByteTestData(ByteTestData &byte_test, int value, ByteTestOper code = CHECK_EQ)
 {
     byte_test.bytes_to_extract = value;
-    byte_test.cmp_value = value;
+    byte_test.cmp_var = value;
     byte_test.opcode = code;
     byte_test.offset = value;
     byte_test.not_flag = value;
@@ -640,7 +640,7 @@ static void SetByteTestData(ByteTestData &byte_test, int value, ByteTestOper cod
 static void SetByteTestDataMax(ByteTestData& byte_test)
 {
     byte_test.bytes_to_extract = UINT_MAX;
-    byte_test.cmp_value = UINT_MAX;
+    byte_test.cmp_var = UINT_MAX;
     byte_test.opcode = CHECK_XOR;
     byte_test.offset = INT_MAX;
     byte_test.not_flag = true;
@@ -778,14 +778,14 @@ TEST_CASE("ByteTestOption test", "[ips_byte_test]")
             REQUIRE(test != test_2_1);
         }
 
-        SECTION("cmp_value is different")
+        SECTION("cmp_var is different")
         {
-            byte_test.cmp_value = 2;
+            byte_test.cmp_var = 2;
             ByteTestOption test_2_2(byte_test);
             REQUIRE(test != test_2_2);
         }
 
-        SECTION("cmp_value is different")
+        SECTION("cmp_var is different")
         {
             byte_test.opcode = CHECK_LT;
             ByteTestOption test_2_3(byte_test);
@@ -919,7 +919,7 @@ TEST_CASE("ByteTestOption test", "[ips_byte_test]")
 
         SECTION("String truncation")
         {
-            byte_test.cmp_value = 123;
+            byte_test.cmp_var = 123;
             byte_test.cmp_value_var = -1;
             byte_test.bytes_to_extract = 10;
             byte_test.opcode = ByteTestOper(0);
@@ -941,7 +941,7 @@ TEST_CASE("ByteTestOption test", "[ips_byte_test]")
         {
             SECTION("Cursor on the last byte of buffer")
             {
-                byte_test.cmp_value = 32;
+                byte_test.cmp_var = 32;
                 byte_test.cmp_value_var = -1;
                 byte_test.bytes_to_extract = 1;
                 byte_test.opcode = ByteTestOper(0);
@@ -974,7 +974,7 @@ TEST_CASE("ByteTestOption test", "[ips_byte_test]")
 
             SECTION("Cursor on the last byte of buffer with string flag")
             {
-                byte_test.cmp_value = 123;
+                byte_test.cmp_var = 123;
                 byte_test.cmp_value_var = -1;
                 byte_test.bytes_to_extract = 3;
                 byte_test.opcode = ByteTestOper(0);
@@ -994,7 +994,7 @@ TEST_CASE("ByteTestOption test", "[ips_byte_test]")
 
             SECTION("String truncation")
             {
-                byte_test.cmp_value = 123;
+                byte_test.cmp_var = 123;
                 byte_test.cmp_value_var = -1;
                 byte_test.bytes_to_extract = 10;
                 byte_test.opcode = ByteTestOper(0);
@@ -1101,7 +1101,7 @@ TEST_CASE("ByteTestModule test", "[ips_byte_test]")
                     nullptr, "default", "help");
                 value_tmp.set(&param);
                 REQUIRE(true == module_test.set(nullptr, value_tmp, nullptr));
-                REQUIRE(module_test.data.cmp_value == 4294967295UL);
+                REQUIRE(module_test.data.cmp_var == 4294967295UL);
             }
         }
 

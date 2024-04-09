@@ -56,6 +56,7 @@ extern const BaseApi* ips_byte_extract[];
 extern const BaseApi* ips_byte_jump[];
 extern const BaseApi* ips_byte_math[];
 extern const BaseApi* ips_byte_test[];
+extern const BaseApi* ips_var_test[];
 extern const BaseApi* ips_cvs[];
 extern const BaseApi* ips_enable[];
 extern const BaseApi* ips_file_type[];
@@ -130,6 +131,7 @@ void load_ips_options()
     PluginManager::load_plugins(ips_byte_jump);
     PluginManager::load_plugins(ips_byte_math);
     PluginManager::load_plugins(ips_byte_test);
+    PluginManager::load_plugins(ips_var_test);
     PluginManager::load_plugins(ips_cvs);
     PluginManager::load_plugins(ips_enable);
     PluginManager::load_plugins(ips_file_type);
